@@ -290,9 +290,10 @@ footer a{color:#E9D9BF;text-decoration:none}
   </div>
 
   <section class="why">
-    <h2>Why it matters</h2>
-    <p>Everyone deserves to be noticed. The wish lists are heartbreakingly simple: a pair of socks, a warm blanket, a Starbucks card. Many of these seniors no longer get visits from family, and a gift with their name on it tells them someone remembered.</p>
-    <p>It takes about two minutes to sign up and one shopping trip to make someone's Christmas. <b style="color:var(--berry-d);font-weight:600">Thank you for being their Santa.</b></p>
+    <h2>How this started</h2>
+    <p>In 2015, I was part of a leadership program that volunteered at Hallmark Manor. That's where we learned that many of the residents spend the holidays alone. There was no money for gifts, and their wish lists were heartbreakingly modest: a baby doll, a jar of pickles, a pair of socks.</p>
+    <p>Once we knew, we couldn't look away. So we rallied our community to make sure no one there would be forgotten at Christmas. Twelve years later, it's a tradition the residents look forward to all year. <b style="color:var(--berry-d);font-weight:600">Thank you for being someone's Santa.</b></p>
+    <div class="sig">— Jessica Montesi</div>
   </section>
 
   <div class="notice" id="notice"></div>
@@ -331,14 +332,15 @@ footer a{color:#E9D9BF;text-decoration:none}
   <div class="info">
     <div class="panel">
       <h3>🎁 Gift drop-off</h3>
-      <p style="margin-bottom:10px" id="dropInfo">Drop-off details are on the way. Once you sign up, Jessica will follow up with where and when to bring your gifts.</p>
+      <p style="margin-bottom:10px" id="dropInfo"><b>Federal Way</b> · Keller Williams<br>33434 8th Ave S, Suite 103<br>Federal Way, WA 98003</p>
+      <p style="color:var(--muted)">Open weekdays, 9 AM to 5 PM.</p>
       <p id="deadline" style="display:none;font-weight:600;color:var(--berry)"></p>
       <p><b>No need to wrap!</b> A Christmas gift bag is perfect.</p>
       <div class="labelnote">🏷️ <b>Please label every bag</b> with the senior's number and name (e.g. <b>"#4 Glenn B."</b>). With hundreds of gifts coming in, labels are how we make sure every senior is covered.</div>
     </div>
     <div class="panel">
       <h3>🎄 Questions?</h3>
-      <p><b>Jessica Montesi</b><br><a href="mailto:jessicadmontesi@gmail.com">jessicadmontesi@gmail.com</a></p>
+      <p><b>Jessica Montesi</b><br><a href="tel:+12533941145">253.394.1145</a> · <a href="mailto:jessicadmontesi@gmail.com">jessicadmontesi@gmail.com</a></p>
     </div>
   </div>
 
@@ -380,7 +382,7 @@ footer a{color:#E9D9BF;text-decoration:none}
 
 <script>
 const DEADLINE = "Saturday, December 12";
-const DROPOFF = "";
+const DROPOFF = "Keller Williams Federal Way · 33434 8th Ave S, Suite 103, Federal Way, WA 98003";
 const DEADLINE_DATE = "2026-12-12";   // "YYYY-MM-DD" or ""
 const VENMO = "";
 const SITE = "sc";
@@ -646,7 +648,7 @@ async function claim(name, phone, email, role, optin){
       <h3 id="mTitle">${one ? `You're ${esc(list[0].name)}'s ${title}!` : `You're ${title} for ${list.length} seniors!`}</h3>
       ${one ? `<p class="sub">Shop for: ${list[0].wish.map(esc).join(" · ")}</p>`
             : `<ul class="donelist">${list.map(s => `<li><b>#${esc(s.n)} ${esc(s.name)}</b> — ${s.wish.map(esc).join(", ")}</li>`).join("")}</ul>`}
-      <p style="font-size:14px;line-height:1.5">Please get gifts to us${DEADLINE?` by <b>${esc(DEADLINE)}</b>`:""}. Jessica will follow up with drop-off details. <b>Your confirmation email has everything you need.</b></p>
+      <p style="font-size:14px;line-height:1.5">Please get gifts to us${DEADLINE?` by <b>${esc(DEADLINE)}</b>`:""}. Drop off at <b>Keller Williams Federal Way</b> (weekdays, 9 AM to 5 PM). <b>Your confirmation email has the address and details.</b></p>
       <div class="labelnote" style="text-align:left">🎁 <b>No need to wrap.</b> A Christmas bag is perfect.<br>🏷️ ${one ? `Please label it <b>"#${esc(list[0].n)} ${esc(list[0].name)}"</b>.` : `Use <b>one bag per senior</b>, each labeled with their number and name.`} It's how we track hundreds of gifts and make sure no one is missed.</div>
       <p style="font-size:13px;color:var(--muted)">We've emailed you these details too.</p>
       <div class="actions">
