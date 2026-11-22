@@ -488,7 +488,7 @@ function render(){
         : `<button class="btn sm" data-adopt="${esc(s.n)}">Adopt</button>`;
     return pre + `<article class="card${s.taken?" taken":""}${mine?" mine":""}${picked.includes(String(s.n))?" picked":""}${popNext.has(String(s.n))?" pop":""}" style="--i:${i}">
       <div class="badge">${esc(s.n)}</div>
-      <div class="txt"><h3>${esc(s.name)}${/^senior #/i.test(s.name)?`<span class="g">· name coming soon</span>`:""}${s.g?`<span class="g">${s.g==="F"?"W":"M"}</span>`:""}${mine?' <span class="g" style="color:var(--pine)">· YOURS</span>':""}</h3>
+      <div class="txt"><h3>${esc(s.name)}${s.g?`<span class="g">${s.g==="F"?"W":"M"}</span>`:""}${mine?' <span class="g" style="color:var(--pine)">· YOURS</span>':""}</h3>
       <div class="wish">${s.wish.map(esc).join(" · ")}</div></div>${action}</article>`;
   }).join("");
 }
