@@ -407,7 +407,10 @@ function saveTokens(t){ store("rs_tokens", JSON.stringify(t)); }
 function isMine(n){ return !!tokens()[n]; }
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),3000); }
 function notice(msg){ const n=$("#notice"); n.textContent=msg||""; n.classList.toggle("show", !!msg); }
-function first(s){ return String(s||"").split(" ")[0]; }
+function first(s){ const t=String(s||""); return /^senior #/i.test(t) ? t : t.split(" ")[0]; }
+/* Placeholder spots ("Name coming soon") show as "Senior #112" until a real name is typed into the Sheet. */
+function norm(list){ return (list||[]).map(s => /^name coming soon/i.test(String(s.name||"").trim()) ? Object.assign({}, s, {name: "Senior #" + s.n}) : s); }
+function lbl(s){ return /^senior #/i.test(String(s.name)) ? String(s.name) : "#" + s.n + " " + s.name; }
 
 function api(fn, ...args){
   const req = fn === "getData"
@@ -478,7 +481,7 @@ function render(){
         : `<button class="btn sm" data-adopt="${esc(s.n)}">Adopt</button>`;
     return pre + `<article class="card${s.taken?" taken":""}${mine?" mine":""}${picked.includes(String(s.n))?" picked":""}${popNext.has(String(s.n))?" pop":""}" style="--i:${i}">
       <div class="badge">${esc(s.n)}</div>
-      <div class="txt"><h3>${esc(s.name)}${s.g?`<span class="g">${s.g==="F"?"W":"M"}</span>`:""}${mine?' <span class="g" style="color:var(--pine)">· YOURS</span>':""}</h3>
+      <div class="txt"><h3>${esc(s.name)}${/^senior #/i.test(s.name)?`<span class="g">· name coming soon</span>`:""}${s.g?`<span class="g">${s.g==="F"?"W":"M"}</span>`:""}${mine?' <span class="g" style="color:var(--pine)">· YOURS</span>':""}</h3>
       <div class="wish">${s.wish.map(esc).join(" · ")}</div></div>${action}</article>`;
   }).join("");
 }
@@ -505,7 +508,7 @@ function apply(data, announce){
       }
     });
   }
-  SENIORS = data; loaded = true;
+  SENIORS = norm(data); loaded = true;
   const lost = picked.filter(n => { const s = byN(n); return !s || s.taken; });
   if(lost.length){ picked = picked.filter(n => !lost.includes(n)); toast("Someone just adopted " + lost.map(n => (byN(n)||{}).name || "#"+n).join(" & ") + " — removed from your picks."); }
   render(); updateImpact(); updateTray();
@@ -573,7 +576,7 @@ function openForm(errMsg){
   $("#sheet").innerHTML = `
     <h3 id="mTitle">${one ? "Adopt " + esc(list[0].name) : "Adopt " + list.length + " seniors"}</h3>
     ${one ? `<p class="sub">Wish list: ${list[0].wish.map(esc).join(" · ")}</p>`
-          : `<ul class="picklist">${list.map(s => `<li><div class="tx"><div class="nm">#${esc(s.n)} ${esc(s.name)}</div><div class="w">${s.wish.map(esc).join(" · ")}</div></div><button type="button" data-unpick="${esc(s.n)}" aria-label="Remove ${esc(s.name)}">×</button></li>`).join("")}</ul>`}
+          : `<ul class="picklist">${list.map(s => `<li><div class="tx"><div class="nm">${esc(lbl(s))}</div><div class="w">${s.wish.map(esc).join(" · ")}</div></div><button type="button" data-unpick="${esc(s.n)}" aria-label="Remove ${esc(s.name)}">×</button></li>`).join("")}</ul>`}
     <button type="button" class="addmore" id="addmore">＋ Add another senior</button>
     <form id="f" novalidate>
       <label>Sign me up as</label>
@@ -632,7 +635,7 @@ async function claim(name, phone, email, role, optin){
     if(!r.ok){
       draft = { name, phone, email, opt: optin, role };
       if(r.taken) picked = picked.filter(n => !r.taken.map(String).includes(n));
-      if(r.data){ SENIORS = r.data; render(); updateImpact(); }
+      if(r.data){ SENIORS = norm(r.data); render(); updateImpact(); }
       busy = false;
       if(picked.length) openForm(r.reason); else { closeSheet(); toast(r.reason || "Couldn't save just now."); }
       return;
@@ -647,9 +650,9 @@ async function claim(name, phone, email, role, optin){
       <div class="big">${emoji}</div>
       <h3 id="mTitle">${one ? `You're ${esc(list[0].name)}'s ${title}!` : `You're ${title} for ${list.length} seniors!`}</h3>
       ${one ? `<p class="sub">Shop for: ${list[0].wish.map(esc).join(" · ")}</p>`
-            : `<ul class="donelist">${list.map(s => `<li><b>#${esc(s.n)} ${esc(s.name)}</b> — ${s.wish.map(esc).join(", ")}</li>`).join("")}</ul>`}
+            : `<ul class="donelist">${list.map(s => `<li><b>${esc(lbl(s))}</b> — ${s.wish.map(esc).join(", ")}</li>`).join("")}</ul>`}
       <p style="font-size:14px;line-height:1.5">Please get gifts to us${DEADLINE?` by <b>${esc(DEADLINE)}</b>`:""}. Drop off at <b>Keller Williams Federal Way</b> (weekdays, 9 AM to 5 PM). <b>Your confirmation email has the address and details.</b></p>
-      <div class="labelnote" style="text-align:left">🎁 <b>No need to wrap.</b> A Christmas bag is perfect.<br>🏷️ ${one ? `Please label it <b>"#${esc(list[0].n)} ${esc(list[0].name)}"</b>.` : `Use <b>one bag per senior</b>, each labeled with their number and name.`} It's how we track hundreds of gifts and make sure no one is missed.</div>
+      <div class="labelnote" style="text-align:left">🎁 <b>No need to wrap.</b> A Christmas bag is perfect.<br>🏷️ ${one ? `Please label it <b>"${esc(lbl(list[0]))}"</b>.` : `Use <b>one bag per senior</b>, each labeled with their number and name.`} It's how we track hundreds of gifts and make sure no one is missed.</div>
       <p style="font-size:13px;color:var(--muted)">We've emailed you these details too.</p>
       <div class="actions">
         ${DEADLINE_DATE ? `<div class="cal"><button type="button" class="btn alt" id="calBtn">📅 Add reminder</button>
@@ -684,10 +687,10 @@ async function undo(n){
 function ymd(d){ return d.replace(/-/g,""); }
 function nextDay(d){ const x = new Date(d+"T12:00:00"); x.setDate(x.getDate()+1); return x.toISOString().slice(0,10); }
 function gcalUrl(list){
-  const labels = list.map(s => `#${s.n} ${s.name}`);
+  const labels = list.map(s => lbl(s));
   const q = new URLSearchParams({action:"TEMPLATE", text:`Drop off Adopt a Senior gifts 🎁 (${labels.join(", ")})`,
     dates:`${ymd(DEADLINE_DATE)}/${ymd(nextDay(DEADLINE_DATE))}`,
-    details: list.map(s => `#${s.n} ${s.name}: ${s.wish.join(", ")}`).join("\n") + "\nOne bag per senior, labeled with their number and name.\nAdopt a Senior · SeniorChristmas.com",
+    details: list.map(s => `${lbl(s)}: ${s.wish.join(", ")}`).join("\n") + "\nOne bag per senior, labeled with their number and name.\nAdopt a Senior · SeniorChristmas.com",
     location: DROPOFF});
   return "https:\/\/calendar.google.com/calendar/render?" + q.toString();
 }
